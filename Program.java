@@ -32,7 +32,7 @@ class Battery
         var floor = 1;
         for (Integer i = 0; i < _amountOfColumns; i++)
         {
-            Column column = new Column(i, _amountOfElevatorPerColumn, 1, trueFalseinator(i));
+            Column column = new Column(i+1, _amountOfElevatorPerColumn, 1, trueFalseinator(i));
             columnsList.add(column);
             //For every block of servedFloors, add the designated floors to the servedFloors list.
             if(i > 0)
