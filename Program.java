@@ -27,7 +27,7 @@ class Battery
         columnsList = new ArrayList<Column>();
         floorRequestButtonsList = new ArrayList<FloorRequestButton>();
         //Column Constructor
-        for (Integer i = 0; i < _amountOfElevatorPerColumn; i++)
+        for (Integer i = 0; i < _amountOfColumns; i++)
         {
             Column column = new Column(i, _amountOfElevatorPerColumn, 1, trueFalseinator(i));
             columnsList.add(column);
@@ -36,6 +36,8 @@ class Battery
                 for (Integer x = 1; x <= _amountOfBasements; x++)
                 {
                     columnsList.get(0).servedFloors.add(-x);
+                    CallButton upCallButtonCreator = new CallButton(x, -6 + x, "up");
+                    columnsList.get(0).callButtonsList.add(upCallButtonCreator);
                 }
                 columnsList.get(0).servedFloors.add(1);
             }
@@ -44,6 +46,9 @@ class Battery
                 for (Integer x = 0; x < 20; x++)
                 {
                     columnsList.get(1).servedFloors.add(x + 1);
+                    CallButton downCallButtonCreator = new CallButton(x, x, "down");
+                    columnsList.get(1).callButtonsList.add(downCallButtonCreator);
+                    //System.out.println(columnsList.get(1).servedFloors.size());
                 }
                 columnsList.get(1).servedFloors.add(1);
             } 
@@ -52,6 +57,8 @@ class Battery
                 for (Integer x = 20; x < 40; x++)
                 {
                     columnsList.get(2).servedFloors.add(x + 1);
+                    CallButton downCallButtonCreator = new CallButton(x, x, "down");
+                    columnsList.get(2).callButtonsList.add(downCallButtonCreator);
                 }
                 columnsList.get(2).servedFloors.add(1);
             }
@@ -60,6 +67,8 @@ class Battery
                 for (Integer x = 40; x < 60; x++)
                 {
                     columnsList.get(3).servedFloors.add(x + 1);
+                    CallButton downCallButtonCreator = new CallButton(x, x, "down");
+                    columnsList.get(3).callButtonsList.add(downCallButtonCreator);
                 }
                 columnsList.get(3).servedFloors.add(1);
             }
@@ -131,15 +140,18 @@ class Battery
             while(bestElevator.currentFloor > _requestedFloor){
                 bestElevator.currentFloor--;
                 bestElevator.status = "moving";
+                bestElevator.door.status = "closed";
                 System.out.println("Elevator is on floor " + bestElevator.currentFloor);
             }
             while(bestElevator.currentFloor < _requestedFloor){
                 bestElevator.currentFloor++;
                 bestElevator.status = "moving";
+                bestElevator.door.status = "closed";
                 System.out.println("Elevator is on floor " + bestElevator.currentFloor);
             }
             while(bestElevator.currentFloor == _requestedFloor){
                 bestElevator.status = "idle";
+                bestElevator.door.status = "open";
                 System.out.println("*DING* Elevator has arrived at floor " + _requestedFloor + ".");
                 System.out.println("Please exit now.");
             break;
@@ -178,15 +190,18 @@ class Battery
             while(bestElevator.currentFloor > _requestedFloor){
                 bestElevator.currentFloor--;
                 bestElevator.status = "moving";
+                bestElevator.door.status = "closed";
                 System.out.println("Elevator is on floor " + bestElevator.currentFloor);
             }
             while(bestElevator.currentFloor < _requestedFloor){
                 bestElevator.currentFloor++;
                 bestElevator.status = "moving";
+                bestElevator.door.status = "closed";
                 System.out.println("Elevator is on floor " + bestElevator.currentFloor);
             }
             while(bestElevator.currentFloor == _requestedFloor){
                 bestElevator.status = "idle";
+                bestElevator.door.status = "open";
                 System.out.println("*DING* Elevator has arrived at floor " + _requestedFloor + ".");
                 System.out.println("Please exit now.");
             break;
@@ -217,25 +232,37 @@ class Column
         callButtonsList = new ArrayList<CallButton>();
         for (Integer i = 0; i < _amountOfElevators; i++)
         {
-            Elevator elevator = new Elevator(i);
+            Elevator elevator = new Elevator(i+1);
             elevatorsList.add(elevator);
         }
-        if (_isBasement == true)
-        {
-            for(Integer i = 0; i < 6; i++)
-            {
-                CallButton upCallButtonCreator = new CallButton(i, -6 -i, "up");
-                callButtonsList.add(upCallButtonCreator);
-            }
-        }
-        if (_isBasement == false)
-        {
-            for (Integer i = 2; i <= 60 ; i++)
-            {
-                CallButton downCallButtonCreator = new CallButton(i, i, "down");
-                callButtonsList.add(downCallButtonCreator);
-            }
-        }
+        // if (_isBasement == true)
+        // {
+        //     for(Integer i = 0; i < 6; i++)
+        //     {
+        //         CallButton upCallButtonCreator = new CallButton(i, -6 + i, "up");
+        //         callButtonsList.add(upCallButtonCreator);
+        //     }
+        // }
+        // if (_isBasement == false)
+        // {
+        //     System.out.println("fuck");
+        //     System.out.println(servedFloors.size());
+        //     for(Integer i = 0; i < servedFloors.size(); i++)
+        //     //for(Integer floor : this.servedFloors)
+        //     {
+        //         System.out.println("frick");
+        //         if (i > 1){
+        //             System.out.println("fook");
+        //             CallButton downCallButtonCreator = new CallButton(i, i, "down");
+        //             this.callButtonsList.add(downCallButtonCreator);
+        //         }
+        //     }
+        //     // for (Integer i = 2; i <= 60 ; i++)
+        //     // {
+        //     //     CallButton downCallButtonCreator = new CallButton(i, i, "down");
+        //     //     callButtonsList.add(downCallButtonCreator);
+        //     // }
+        // }
     }
     public Elevator requestElevator(Integer _requestedFloor, String _direction)
     {
@@ -273,7 +300,7 @@ class Column
                     bestScore1 = 1;
                     referenceGap1 = java.lang.Math.abs(elevator.currentFloor - _requestedFloor);
                 }
-                if (elevator.floorRequestsList.contains(1) && elevator.direction == "down" && elevator.currentFloor > _requestedFloor)
+                if (elevator.floorRequestsList.contains(1) && elevator.direction == "down" && elevator.currentFloor > _requestedFloor && java.lang.Math.abs(elevator.currentFloor - _requestedFloor) < referenceGap1)
                 {
                     bestElevator1 = elevator;
                     bestScore1 = 2;
@@ -291,17 +318,20 @@ class Column
         {
             while(bestElevator1.currentFloor == _requestedFloor)
             {
+                bestElevator1.door.status = "open";
                 System.out.println("*DING* Elevator doors are open, please enter");
                 break;
             }
             bestElevator1.currentFloor--;
             bestElevator1.status = "moving";
+            bestElevator1.door.status = "closed";
             System.out.println("Elevator is on floor " + bestElevator1.currentFloor);
         }
         while(bestElevator1.currentFloor < -1)
         {
             bestElevator1.currentFloor++;
             bestElevator1.status = "moving";
+            bestElevator1.door.status = "closed";
             System.out.println("Elevator is on floor " + bestElevator1.currentFloor);
         }
         while(bestElevator1.currentFloor == -1)
@@ -315,6 +345,7 @@ class Column
         while(bestElevator1.currentFloor == 1)
         {
             bestElevator1.status = "idle";
+            bestElevator1.door.status = "open";
             System.out.println("*DING* Elevator has arrived at Lobby.");
             break;
         }
@@ -327,7 +358,7 @@ class Elevator {
     public String status;
     public int currentFloor;
     public String direction;
-    public Object door;
+    public Door door;
     public ArrayList<Integer> floorRequestsList;
     public ArrayList<Integer> completedRequestsList;
     public Elevator (int _id)
@@ -409,33 +440,97 @@ public class Program
         // System.out.println(battery1.bestElevator.ID);
         
         //Scenario 2
-        Battery battery2 = new Battery(1, 4, 60, 6, 5);
-        battery2.findBestColumn(20);
-        battery2.columnsList.get(2).elevatorsList.get(0).currentFloor = 1;
-        battery2.columnsList.get(2).elevatorsList.get(1).currentFloor = 23;
-        battery2.columnsList.get(2).elevatorsList.get(2).currentFloor = 33;
-        battery2.columnsList.get(2).elevatorsList.get(3).currentFloor = 40;
-        battery2.columnsList.get(2).elevatorsList.get(4).currentFloor = 39;
-        battery2.columnsList.get(2).elevatorsList.get(0).floorRequestsList.add(21);
-        battery2.columnsList.get(2).elevatorsList.get(1).floorRequestsList.add(28);
-        battery2.columnsList.get(2).elevatorsList.get(2).floorRequestsList.add(1);
-        battery2.columnsList.get(2).elevatorsList.get(3).floorRequestsList.add(24);
-        battery2.columnsList.get(2).elevatorsList.get(4).floorRequestsList.add(39);
-        battery2.columnsList.get(2).elevatorsList.get(0).status = "stopped";
-        battery2.columnsList.get(2).elevatorsList.get(1).status = "moving";
-        battery2.columnsList.get(2).elevatorsList.get(2).status = "moving";
-        battery2.columnsList.get(2).elevatorsList.get(3).status = "moving";
-        battery2.columnsList.get(2).elevatorsList.get(4).status = "moving";
-        battery2.columnsList.get(2).elevatorsList.get(0).direction = null;
-        battery2.columnsList.get(2).elevatorsList.get(1).direction = "up";
-        battery2.columnsList.get(2).elevatorsList.get(2).direction = "down";
-        battery2.columnsList.get(2).elevatorsList.get(3).direction = "down";
-        battery2.columnsList.get(2).elevatorsList.get(4).direction = "down";
-        battery2.assignElevator(36, "up");
-        System.out.println("Elevator C1 is aka array[0] below");
-        System.out.println(battery2.bestElevator.ID);
+        // Battery battery2 = new Battery(1, 4, 60, 6, 5);
+        // battery2.findBestColumn(20);
+        // battery2.columnsList.get(2).elevatorsList.get(0).currentFloor = 1;
+        // battery2.columnsList.get(2).elevatorsList.get(1).currentFloor = 23;
+        // battery2.columnsList.get(2).elevatorsList.get(2).currentFloor = 33;
+        // battery2.columnsList.get(2).elevatorsList.get(3).currentFloor = 40;
+        // battery2.columnsList.get(2).elevatorsList.get(4).currentFloor = 39;
+        // battery2.columnsList.get(2).elevatorsList.get(0).floorRequestsList.add(21);
+        // battery2.columnsList.get(2).elevatorsList.get(1).floorRequestsList.add(28);
+        // battery2.columnsList.get(2).elevatorsList.get(2).floorRequestsList.add(1);
+        // battery2.columnsList.get(2).elevatorsList.get(3).floorRequestsList.add(24);
+        // battery2.columnsList.get(2).elevatorsList.get(4).floorRequestsList.add(39);
+        // battery2.columnsList.get(2).elevatorsList.get(0).status = "stopped";
+        // battery2.columnsList.get(2).elevatorsList.get(1).status = "moving";
+        // battery2.columnsList.get(2).elevatorsList.get(2).status = "moving";
+        // battery2.columnsList.get(2).elevatorsList.get(3).status = "moving";
+        // battery2.columnsList.get(2).elevatorsList.get(4).status = "moving";
+        // battery2.columnsList.get(2).elevatorsList.get(0).direction = null;
+        // battery2.columnsList.get(2).elevatorsList.get(1).direction = "up";
+        // battery2.columnsList.get(2).elevatorsList.get(2).direction = "down";
+        // battery2.columnsList.get(2).elevatorsList.get(3).direction = "down";
+        // battery2.columnsList.get(2).elevatorsList.get(4).direction = "down";
+        // battery2.assignElevator(36, "up");
+        // System.out.println("Elevator C1 is aka array[0] below");
+        // System.out.println(battery2.bestElevator.ID);
+
+        //Scenario 3
+        // Battery battery3 = new Battery(1, 4, 60, 6, 5);
+        // battery3.columnsList.get(3).elevatorsList.get(0).currentFloor = 58;
+        // battery3.columnsList.get(3).elevatorsList.get(1).currentFloor = 50;
+        // battery3.columnsList.get(3).elevatorsList.get(2).currentFloor = 46;
+        // battery3.columnsList.get(3).elevatorsList.get(3).currentFloor = 1;
+        // battery3.columnsList.get(3).elevatorsList.get(4).currentFloor = 60;
+        // battery3.columnsList.get(3).elevatorsList.get(0).status = "moving";
+        // battery3.columnsList.get(3).elevatorsList.get(1).status = "moving";
+        // battery3.columnsList.get(3).elevatorsList.get(2).status = "moving";
+        // battery3.columnsList.get(3).elevatorsList.get(3).status = "moving";
+        // battery3.columnsList.get(3).elevatorsList.get(4).status = "moving";
+        // battery3.columnsList.get(3).elevatorsList.get(0).floorRequestsList.add(1);
+        // battery3.columnsList.get(3).elevatorsList.get(1).floorRequestsList.add(60);
+        // battery3.columnsList.get(3).elevatorsList.get(2).floorRequestsList.add(58);
+        // battery3.columnsList.get(3).elevatorsList.get(3).floorRequestsList.add(54);
+        // battery3.columnsList.get(3).elevatorsList.get(4).floorRequestsList.add(1);
+        // battery3.columnsList.get(3).elevatorsList.get(0).direction = "down";
+        // battery3.columnsList.get(3).elevatorsList.get(1).direction = "up";
+        // battery3.columnsList.get(3).elevatorsList.get(2).direction = "up";
+        // battery3.columnsList.get(3).elevatorsList.get(3).direction = "up";
+        // battery3.columnsList.get(3).elevatorsList.get(4).direction = "down";
+        // battery3.columnsList.get(3).requestElevator(54, "down");
+        // System.out.println("Elevator D1 is aka array[0] below");
+        // System.out.println(battery3.columnsList.get(3).bestElevator1.ID);
+        // System.out.println("Elevator D1 currentFloor below");
+        // System.out.println(battery3.columnsList.get(3).bestElevator1.currentFloor);
+
+        //Scenario 4
+        Battery battery4 = new Battery(1, 4, 60, 6, 5);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.size());
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(1).floor);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(2).floor);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(3).floor);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(4).floor);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(5).floor);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(6).floor);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(7).floor);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(8).floor);
+        System.out.println(battery4.columnsList.get(1).callButtonsList.get(9).floor);
+
+
+        // battery4.columnsList.get(0).elevatorsList.get(0).currentFloor = -4;
+        // battery4.columnsList.get(0).elevatorsList.get(1).currentFloor = 1;
+        // battery4.columnsList.get(0).elevatorsList.get(2).currentFloor = -3;
+        // battery4.columnsList.get(0).elevatorsList.get(3).currentFloor = -6;
+        // battery4.columnsList.get(0).elevatorsList.get(4).currentFloor = -1;
+        // battery4.columnsList.get(0).elevatorsList.get(0).status = "idle";
+        // battery4.columnsList.get(0).elevatorsList.get(1).status = "idle";
+        // battery4.columnsList.get(0).elevatorsList.get(2).status = "moving";
+        // battery4.columnsList.get(0).elevatorsList.get(3).status = "moving";
+        // battery4.columnsList.get(0).elevatorsList.get(4).status = "moving";
+        // battery4.columnsList.get(0).elevatorsList.get(2).floorRequestsList.add(-5);
+        // battery4.columnsList.get(0).elevatorsList.get(3).floorRequestsList.add(1);
+        // battery4.columnsList.get(0).elevatorsList.get(4).floorRequestsList.add(-6);
+        // battery4.columnsList.get(0).elevatorsList.get(0).direction = null;
+        // battery4.columnsList.get(0).elevatorsList.get(1).direction = null;
+        // battery4.columnsList.get(0).elevatorsList.get(2).direction = "down";
+        // battery4.columnsList.get(0).elevatorsList.get(3).direction = "up";
+        // battery4.columnsList.get(0).elevatorsList.get(4).direction = "down";
+        // battery4.columnsList.get(0).requestElevator(-3, "up");
+        // System.out.println("Elevator A4 is below");
+        // System.out.println(battery4.columnsList.get(0).bestElevator1.ID);
+        // System.out.println("Elevator A4 currentFloor below");
+        // System.out.println(battery4.columnsList.get(0).bestElevator1.currentFloor);
         
-        // Column column1 = new Column(1, 5, 60, false);
-        // System.out.println(column1.elevatorsList.size());
     }
 }
